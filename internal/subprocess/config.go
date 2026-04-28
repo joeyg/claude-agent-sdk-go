@@ -19,11 +19,17 @@ func (t *Transport) generateMcpConfigFile() (string, error) {
 	serversForCLI := make(map[string]any)
 	for name, config := range t.options.McpServers {
 		if sdkConfig, ok := config.(*shared.McpSdkServerConfig); ok {
-			// SDK servers: only send type and name to CLI
-			serversForCLI[name] = map[string]any{
+			// SDK servers: only send type and name to CLI (the Go Instance
+			// stays in-process). AlwaysLoad must be propagated explicitly
+			// since we're not relying on struct json tags here.
+			entry := map[string]any{
 				"type": string(sdkConfig.Type),
 				"name": sdkConfig.Name,
 			}
+			if sdkConfig.AlwaysLoad {
+				entry["alwaysLoad"] = true
+			}
+			serversForCLI[name] = entry
 		} else {
 			// External servers: pass as-is
 			serversForCLI[name] = config

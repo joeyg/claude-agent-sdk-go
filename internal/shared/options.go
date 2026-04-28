@@ -279,6 +279,10 @@ type McpStdioServerConfig struct {
 	Command string            `json:"command"`
 	Args    []string          `json:"args,omitempty"`
 	Env     map[string]string `json:"env,omitempty"`
+	// AlwaysLoad, when true, opts the server out of tool-search deferral so
+	// all of its tools are always available without a ToolSearch round-trip.
+	// Requires Claude Code CLI 2.1.121 or later.
+	AlwaysLoad bool `json:"alwaysLoad,omitempty"`
 }
 
 // GetType returns the server type for McpStdioServerConfig.
@@ -291,6 +295,10 @@ type McpSSEServerConfig struct {
 	Type    McpServerType     `json:"type"`
 	URL     string            `json:"url"`
 	Headers map[string]string `json:"headers,omitempty"`
+	// AlwaysLoad, when true, opts the server out of tool-search deferral so
+	// all of its tools are always available without a ToolSearch round-trip.
+	// Requires Claude Code CLI 2.1.121 or later.
+	AlwaysLoad bool `json:"alwaysLoad,omitempty"`
 }
 
 // GetType returns the server type for McpSSEServerConfig.
@@ -303,6 +311,10 @@ type McpHTTPServerConfig struct {
 	Type    McpServerType     `json:"type"`
 	URL     string            `json:"url"`
 	Headers map[string]string `json:"headers,omitempty"`
+	// AlwaysLoad, when true, opts the server out of tool-search deferral so
+	// all of its tools are always available without a ToolSearch round-trip.
+	// Requires Claude Code CLI 2.1.121 or later.
+	AlwaysLoad bool `json:"alwaysLoad,omitempty"`
 }
 
 // GetType returns the server type for McpHTTPServerConfig.
@@ -333,6 +345,10 @@ type McpSdkServerConfig struct {
 	Type     McpServerType `json:"type"`
 	Name     string        `json:"name"`
 	Instance McpServer     `json:"-"` // Excluded from CLI serialization
+	// AlwaysLoad, when true, opts the server out of tool-search deferral so
+	// all of its tools are always available without a ToolSearch round-trip.
+	// Requires Claude Code CLI 2.1.121 or later.
+	AlwaysLoad bool `json:"alwaysLoad,omitempty"`
 }
 
 // GetType returns the server type for McpSdkServerConfig.
