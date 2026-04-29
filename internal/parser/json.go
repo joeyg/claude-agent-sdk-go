@@ -251,10 +251,19 @@ func (p *Parser) parseAssistantMessage(data map[string]any) (*shared.AssistantMe
 		errorPtr = &errType
 	}
 
+	// parent_tool_use_id is set on assistant messages produced inside a subagent
+	// (Agent/Task tool). Lives at the top-level of the raw event, matching the
+	// Python SDK and the user-message parsing above.
+	var parentToolUseID *string
+	if ptid, ok := data["parent_tool_use_id"].(string); ok {
+		parentToolUseID = &ptid
+	}
+
 	return &shared.AssistantMessage{
-		Content: blocks,
-		Model:   model,
-		Error:   errorPtr,
+		Content:         blocks,
+		Model:           model,
+		Error:           errorPtr,
+		ParentToolUseID: parentToolUseID,
 	}, nil
 }
 

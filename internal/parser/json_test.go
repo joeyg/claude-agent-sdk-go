@@ -123,6 +123,35 @@ func TestParseValidMessages(t *testing.T) {
 				},
 			},
 			expectedType: shared.MessageTypeAssistant,
+			validate: func(t *testing.T, msg shared.Message) {
+				t.Helper()
+				am := msg.(*shared.AssistantMessage)
+				if am.ParentToolUseID != nil {
+					t.Errorf("expected ParentToolUseID nil, got %v", am.ParentToolUseID)
+				}
+			},
+		},
+		{
+			name: "assistant_message_with_parent_tool_use_id",
+			data: map[string]any{
+				"type":               "assistant",
+				"parent_tool_use_id": "tool-abc",
+				"message": map[string]any{
+					"content": []any{map[string]any{"type": "text", "text": "Subagent reply"}},
+					"model":   "claude-3-sonnet",
+				},
+			},
+			expectedType: shared.MessageTypeAssistant,
+			validate: func(t *testing.T, msg shared.Message) {
+				t.Helper()
+				am := msg.(*shared.AssistantMessage)
+				if am.ParentToolUseID == nil || *am.ParentToolUseID != "tool-abc" {
+					t.Errorf("expected ParentToolUseID 'tool-abc', got %v", am.ParentToolUseID)
+				}
+				if am.GetParentToolUseID() != "tool-abc" {
+					t.Errorf("expected GetParentToolUseID() 'tool-abc', got %q", am.GetParentToolUseID())
+				}
+			},
 		},
 		// Issue #23: AssistantMessage error field tests
 		{

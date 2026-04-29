@@ -105,15 +105,26 @@ func (m *UserMessage) MarshalJSON() ([]byte, error) {
 
 // AssistantMessage represents a message from the assistant.
 type AssistantMessage struct {
-	MessageType string                 `json:"type"`
-	Content     []ContentBlock         `json:"content"`
-	Model       string                 `json:"model"`
-	Error       *AssistantMessageError `json:"error,omitempty"`
+	MessageType     string                 `json:"type"`
+	Content         []ContentBlock         `json:"content"`
+	Model           string                 `json:"model"`
+	Error           *AssistantMessageError `json:"error,omitempty"`
+	ParentToolUseID *string                `json:"parent_tool_use_id,omitempty"`
 }
 
 // Type returns the message type for AssistantMessage.
 func (m *AssistantMessage) Type() string {
 	return MessageTypeAssistant
+}
+
+// GetParentToolUseID returns the parent tool use ID or empty string if nil.
+// Set by the CLI on assistant messages produced inside a subagent (Agent/Task tool)
+// to identify the orchestrator tool_use_id that spawned the subagent.
+func (m *AssistantMessage) GetParentToolUseID() string {
+	if m.ParentToolUseID != nil {
+		return *m.ParentToolUseID
+	}
+	return ""
 }
 
 // HasError returns true if the message contains an error.
