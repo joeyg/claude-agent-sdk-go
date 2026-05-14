@@ -1631,6 +1631,82 @@ func TestPluginsMixedWithOtherOptions(t *testing.T) {
 	assertOptionsBetas(t, options.Betas, []SdkBeta{SdkBetaContext1M})
 }
 
+// TestWithSkillsOption tests the Skills functional options.
+func TestWithSkillsOption(t *testing.T) {
+	tests := []struct {
+		name     string
+		setup    func() *Options
+		expected any
+	}{
+		{
+			name:     "skills_all_via_helper",
+			setup:    func() *Options { return NewOptions(WithSkillsAll()) },
+			expected: SkillsAll,
+		},
+		{
+			name:     "skills_all_via_with_skills",
+			setup:    func() *Options { return NewOptions(WithSkills(SkillsAll)) },
+			expected: SkillsAll,
+		},
+		{
+			name:     "skills_list",
+			setup:    func() *Options { return NewOptions(WithSkillsList("pdf", "docx")) },
+			expected: []string{"pdf", "docx"},
+		},
+		{
+			name:     "skills_list_via_with_skills",
+			setup:    func() *Options { return NewOptions(WithSkills([]string{"a", "b"})) },
+			expected: []string{"a", "b"},
+		},
+		{
+			name:     "skills_disabled",
+			setup:    func() *Options { return NewOptions(WithSkillsDisabled()) },
+			expected: []string{},
+		},
+		{
+			name:     "skills_unset_is_nil",
+			setup:    func() *Options { return NewOptions() },
+			expected: nil,
+		},
+		{
+			name: "override_skills",
+			setup: func() *Options {
+				return NewOptions(
+					WithSkillsList("first"),
+					WithSkillsAll(),
+				)
+			},
+			expected: SkillsAll,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			options := tt.setup()
+			switch want := tt.expected.(type) {
+			case nil:
+				if options.Skills != nil {
+					t.Errorf("Expected Skills = nil, got %v", options.Skills)
+				}
+			case string:
+				got, ok := options.Skills.(string)
+				if !ok {
+					t.Fatalf("Expected Skills to be string, got %T", options.Skills)
+				}
+				if got != want {
+					t.Errorf("Expected Skills = %q, got %q", want, got)
+				}
+			case []string:
+				got, ok := options.Skills.([]string)
+				if !ok {
+					t.Fatalf("Expected Skills to be []string, got %T", options.Skills)
+				}
+				assertOptionsStringSlice(t, got, want, "Skills")
+			}
+		})
+	}
+}
+
 // assertOptionsPlugins verifies Plugins slice values
 func assertOptionsPlugins(t *testing.T, actual, expected []SdkPluginConfig) {
 	t.Helper()

@@ -313,6 +313,47 @@ func WithSettingSources(sources ...SettingSource) Option {
 	}
 }
 
+// SkillsAll is the sentinel value for enabling every discovered Skill.
+// Passing this to WithSkills enables all Skills found on the filesystem.
+const SkillsAll = shared.SkillsAll
+
+// WithSkills sets the Skills configuration directly.
+// Accepts the string "all" (use SkillsAll) to enable every discovered Skill,
+// a []string of Skill names to enable only those, or []string{} to disable all.
+// When set, SettingSources defaults to [user, project] if unset so the CLI
+// discovers installed Skills. Mirrors the Python SDK's skills option.
+func WithSkills(skills any) Option {
+	return func(o *Options) {
+		o.Skills = skills
+	}
+}
+
+// WithSkillsAll enables every discovered Skill in the session.
+func WithSkillsAll() Option {
+	return func(o *Options) {
+		o.Skills = SkillsAll
+	}
+}
+
+// WithSkillsList enables only the named Skills.
+// Names match the name field in SKILL.md or the Skill's directory name.
+// Use "plugin:skill" for plugin-provided Skills.
+func WithSkillsList(names ...string) Option {
+	return func(o *Options) {
+		// Always store a non-nil slice so callers can distinguish from unset.
+		list := make([]string, len(names))
+		copy(list, names)
+		o.Skills = list
+	}
+}
+
+// WithSkillsDisabled disables all Skills in the session.
+func WithSkillsDisabled() Option {
+	return func(o *Options) {
+		o.Skills = []string{}
+	}
+}
+
 // WithExtraArgs sets arbitrary CLI flags via ExtraArgs.
 func WithExtraArgs(args map[string]*string) Option {
 	return func(o *Options) {

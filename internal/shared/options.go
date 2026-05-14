@@ -40,6 +40,10 @@ type ToolsPreset struct {
 	Preset string `json:"preset"` // e.g., "claude_code"
 }
 
+// SkillsAll is the sentinel string value for Options.Skills that enables every
+// discovered Skill. Mirrors the Python SDK's skills="all" value.
+const SkillsAll = "all"
+
 // SettingSource represents a settings source location.
 type SettingSource string
 
@@ -182,6 +186,14 @@ type Options struct {
 	Settings             *string         `json:"settings,omitempty"`
 	ForkSession          bool            `json:"fork_session,omitempty"`
 	SettingSources       []SettingSource `json:"setting_sources,omitempty"`
+
+	// Skills controls which filesystem-discovered Skills are exposed to the model.
+	// Accepts the string "all" (SkillsAll) to enable every discovered Skill, a
+	// []string of Skill names to enable only those, or an empty []string{} to
+	// disable all. When non-nil and SettingSources is unset, SettingSources
+	// defaults to [user, project] so the CLI discovers installed Skills.
+	// Matches the Python SDK's skills option (see _apply_skills_defaults).
+	Skills any `json:"skills,omitempty"`
 
 	// Partial Message Streaming
 	IncludePartialMessages bool `json:"include_partial_messages,omitempty"`
