@@ -266,6 +266,12 @@ func (t *Transport) buildEnvironment() []string {
 		}
 	}
 
+	// Point the subprocess at the materialized resume config dir. Appended last
+	// so it overrides any CLAUDE_CONFIG_DIR set above.
+	if t.sessionTempDir != "" {
+		env = append(env, "CLAUDE_CONFIG_DIR="+t.sessionTempDir)
+	}
+
 	return env
 }
 

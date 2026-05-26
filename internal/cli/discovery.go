@@ -268,6 +268,9 @@ func addSessionFlags(cmd []string, options *shared.Options) []string {
 	if options.IncludePartialMessages {
 		cmd = append(cmd, "--include-partial-messages")
 	}
+	if options.SessionStore != nil {
+		cmd = append(cmd, "--session-mirror")
+	}
 	return cmd
 }
 

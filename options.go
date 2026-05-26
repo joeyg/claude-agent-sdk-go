@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"os"
+	"time"
 
 	"github.com/severity1/claude-agent-sdk-go/internal/control"
 	"github.com/severity1/claude-agent-sdk-go/internal/shared"
@@ -298,6 +299,25 @@ func WithSettings(settings string) Option {
 func WithForkSession(fork bool) Option {
 	return func(o *Options) {
 		o.ForkSession = fork
+	}
+}
+
+// WithSessionStore mirrors session transcripts to an external backend (S3,
+// Redis, a database, ...) so a session created on one host can be resumed on
+// another. When set, the CLI is launched with --session-mirror, transcript
+// batches are forwarded to store.Append, and WithResume loads the transcript
+// back from the store. See the SessionStore interface and InMemorySessionStore.
+func WithSessionStore(store SessionStore) Option {
+	return func(o *Options) {
+		o.SessionStore = store
+	}
+}
+
+// WithSessionStoreLoadTimeout bounds a single SessionStore.Load call during
+// resume. Zero (the default) uses 60s.
+func WithSessionStoreLoadTimeout(d time.Duration) Option {
+	return func(o *Options) {
+		o.SessionStoreLoadTimeout = d
 	}
 }
 

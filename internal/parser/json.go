@@ -97,6 +97,8 @@ func (p *Parser) ParseMessage(data map[string]any) (shared.Message, error) {
 		return p.parseStreamEventMessage(data)
 	case shared.MessageTypeRateLimitEvent:
 		return p.parseRateLimitEventMessage(data)
+	case shared.MessageTypeTranscriptMirror:
+		return p.parseTranscriptMirrorMessage(data)
 	default:
 		return nil, shared.NewMessageParseError(
 			fmt.Sprintf("unknown message type: %s", msgType),
@@ -482,6 +484,36 @@ func (p *Parser) parseRateLimitEventMessage(data map[string]any) (*shared.RateLi
 		msg.SessionID = s
 	}
 	return msg, nil
+}
+
+// parseTranscriptMirrorMessage parses a transcript_mirror frame. Entries are
+// re-marshaled to json.RawMessage; key order is not preserved, which is fine
+// because the SessionStore contract requires deep-equal, not byte-equal,
+// round-tripping.
+func (p *Parser) parseTranscriptMirrorMessage(data map[string]any) (*shared.TranscriptMirrorMessage, error) {
+	filePath, ok := data["filePath"].(string)
+	if !ok || filePath == "" {
+		return nil, shared.NewMessageParseError("transcript_mirror missing filePath field", data)
+	}
+
+	entriesRaw, ok := data["entries"].([]any)
+	if !ok {
+		return nil, shared.NewMessageParseError("transcript_mirror missing entries field", data)
+	}
+
+	entries := make([]json.RawMessage, 0, len(entriesRaw))
+	for i, e := range entriesRaw {
+		b, err := json.Marshal(e)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal transcript_mirror entry %d: %w", i, err)
+		}
+		entries = append(entries, b)
+	}
+
+	return &shared.TranscriptMirrorMessage{
+		FilePath: filePath,
+		Entries:  entries,
+	}, nil
 }
 
 // parseStreamEventMessage parses a stream event message from raw JSON data.

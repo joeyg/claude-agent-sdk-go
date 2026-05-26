@@ -64,6 +64,10 @@ type Transport struct {
 	protocol        *control.Protocol
 	protocolAdapter *ProtocolAdapter
 
+	// Session transcript mirroring (when options.SessionStore is set)
+	mirrorBatcher  *mirrorBatcher
+	sessionTempDir string // temp CLAUDE_CONFIG_DIR materialized for resume; removed on cleanup
+
 	// Control and cleanup
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -125,6 +129,12 @@ func (t *Transport) Connect(ctx context.Context) error {
 		return err
 	}
 
+	// Materialize a resume transcript from the SessionStore (if any) into a
+	// temp CLAUDE_CONFIG_DIR before the environment is built.
+	if err := t.prepareSessionMirror(ctx); err != nil {
+		return err
+	}
+
 	// Build command with all options
 	var args []string
 	if t.promptArg != nil {
@@ -171,6 +181,10 @@ func (t *Transport) Connect(ctx context.Context) error {
 	// Initialize channels
 	t.msgChan = make(chan shared.Message, channelBufferSize)
 	t.errChan = make(chan error, channelBufferSize)
+
+	// Start the transcript-mirror batcher before stdout so frames have a
+	// consumer as soon as they arrive.
+	t.startMirrorBatcher()
 
 	// Start I/O handling goroutines
 	t.wg.Add(1)

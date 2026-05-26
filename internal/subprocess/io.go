@@ -62,6 +62,15 @@ func (t *Transport) handleStdout() {
 			// Route the error to the control protocol to unblock Initialize().
 			t.routeInitError(msg)
 
+			// Transcript-mirror frames are forwarded to the SessionStore and
+			// never surfaced on the message channel.
+			if tm, ok := msg.(*shared.TranscriptMirrorMessage); ok {
+				if t.mirrorBatcher != nil {
+					t.mirrorBatcher.enqueue(tm.FilePath, tm.Entries)
+				}
+				continue
+			}
+
 			// Check if this is a control message that should be routed to the protocol
 			if rawCtrl, ok := msg.(*shared.RawControlMessage); ok {
 				// Route control messages to the protocol for request/response correlation

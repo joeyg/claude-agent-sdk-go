@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 )
 
 const (
@@ -186,6 +187,17 @@ type Options struct {
 	Settings             *string         `json:"settings,omitempty"`
 	ForkSession          bool            `json:"fork_session,omitempty"`
 	SettingSources       []SettingSource `json:"setting_sources,omitempty"`
+
+	// SessionStore mirrors session transcripts to an external backend so a
+	// session created on one host can be resumed on another. When set, the CLI
+	// is launched with --session-mirror and transcript batches are forwarded to
+	// the store; on resume the transcript is loaded back from the store. Not
+	// serialized to JSON (carried in-process only).
+	SessionStore SessionStore `json:"-"`
+
+	// SessionStoreLoadTimeout bounds a single SessionStore.Load during resume.
+	// Zero uses the default (60s). Not serialized.
+	SessionStoreLoadTimeout time.Duration `json:"-"`
 
 	// Skills controls which filesystem-discovered Skills are exposed to the model.
 	// Accepts the string "all" (SkillsAll) to enable every discovered Skill, a

@@ -154,6 +154,21 @@ type RawControlMessage = shared.RawControlMessage
 // StreamEvent represents a partial message update during streaming.
 type StreamEvent = shared.StreamEvent
 
+// TranscriptMirrorMessage carries a batch of session transcript entries emitted
+// by the CLI when a SessionStore is configured. It is consumed internally and
+// not delivered on the public message channel.
+type TranscriptMirrorMessage = shared.TranscriptMirrorMessage
+
+// SessionStore mirrors session JSONL transcripts to an external backend so a
+// session created on one host can be resumed on another. See WithSessionStore.
+type SessionStore = shared.SessionStore
+
+// SessionKey addresses one transcript in a SessionStore.
+type SessionKey = shared.SessionKey
+
+// SessionStoreEntry is a single opaque, JSON-safe transcript entry.
+type SessionStoreEntry = shared.SessionStoreEntry
+
 // Control protocol types for SDK-CLI bidirectional communication.
 
 // SDKControlRequest represents a control request sent to the CLI.

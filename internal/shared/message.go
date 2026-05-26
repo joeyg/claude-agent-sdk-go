@@ -21,6 +21,12 @@ const (
 	// Session heartbeat carrying rate-limit window state. Emitted on
 	// essentially every CLI session — even when nothing is constrained.
 	MessageTypeRateLimitEvent = "rate_limit_event"
+
+	// Transcript-mirror frame emitted by the CLI when --session-mirror is set
+	// (i.e. when a SessionStore is configured). Carries a batch of transcript
+	// entries to forward to SessionStore.Append. Handled internally by the
+	// transport and never surfaced on the message channel.
+	MessageTypeTranscriptMirror = "transcript_mirror"
 )
 
 // Content block type constants
@@ -364,4 +370,20 @@ type StreamEvent struct {
 // Type returns the message type for StreamEvent.
 func (m *StreamEvent) Type() string {
 	return MessageTypeStreamEvent
+}
+
+// TranscriptMirrorMessage carries a batch of session transcript entries emitted
+// by the CLI when --session-mirror is enabled. FilePath is the absolute path of
+// the local JSONL transcript the entries were written to; the transport maps it
+// to a SessionKey (relative to <CLAUDE_CONFIG_DIR>/projects) and forwards the
+// entries to SessionStore.Append. This message is consumed internally and never
+// delivered on the public message channel.
+type TranscriptMirrorMessage struct {
+	FilePath string            `json:"filePath"`
+	Entries  []json.RawMessage `json:"entries"`
+}
+
+// Type returns the message type for TranscriptMirrorMessage.
+func (m *TranscriptMirrorMessage) Type() string {
+	return MessageTypeTranscriptMirror
 }

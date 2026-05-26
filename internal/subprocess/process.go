@@ -105,6 +105,12 @@ func (t *Transport) cleanup() {
 		t.mcpConfigFile = nil
 	}
 
+	if t.sessionTempDir != "" {
+		// Clean up the resume transcript materialized for the SessionStore.
+		_ = os.RemoveAll(t.sessionTempDir) // Ignore cleanup errors
+		t.sessionTempDir = ""
+	}
+
 	// Reset state
 	t.cmd = nil
 }
