@@ -1096,6 +1096,34 @@ func TestFallbackModelOption(t *testing.T) {
 	})
 }
 
+func TestEffortOption(t *testing.T) {
+	tests := []struct {
+		name     string
+		effort   EffortLevel
+		expected string
+	}{
+		{"low", EffortLow, "low"},
+		{"medium", EffortMedium, "medium"},
+		{"high", EffortHigh, "high"},
+		{"xhigh", EffortXHigh, "xhigh"},
+		{"max", EffortMax, "max"},
+		{"empty", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			options := NewOptions(WithEffort(tt.effort))
+			assertOptionsEffort(t, options, tt.expected)
+		})
+	}
+
+	// Test nil case
+	t.Run("nil_by_default", func(t *testing.T) {
+		options := NewOptions()
+		assertOptionsEffortNil(t, options)
+	})
+}
+
 func TestUserOption(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -1207,6 +1235,26 @@ func assertOptionsFallbackModelNil(t *testing.T, options *Options) {
 	t.Helper()
 	if options.FallbackModel != nil {
 		t.Errorf("Expected FallbackModel = nil, got %q", *options.FallbackModel)
+	}
+}
+
+// assertOptionsEffort verifies Effort value
+func assertOptionsEffort(t *testing.T, options *Options, expected string) {
+	t.Helper()
+	if options.Effort == nil {
+		t.Error("Expected Effort to be set, got nil")
+		return
+	}
+	if *options.Effort != expected {
+		t.Errorf("Expected Effort = %q, got %q", expected, *options.Effort)
+	}
+}
+
+// assertOptionsEffortNil verifies Effort is nil
+func assertOptionsEffortNil(t *testing.T, options *Options) {
+	t.Helper()
+	if options.Effort != nil {
+		t.Errorf("Expected Effort = nil, got %q", *options.Effort)
 	}
 }
 
