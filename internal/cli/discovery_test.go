@@ -99,6 +99,18 @@ func TestCwdNotAddedToCommand(t *testing.T) {
 	}
 }
 
+// TestEffortFlagSupport tests that the Effort option maps to the --effort flag.
+func TestEffortFlagSupport(t *testing.T) {
+	effort := "high"
+	options := &shared.Options{Effort: &effort}
+	cmd := BuildCommand("/usr/local/bin/claude", options, false)
+	assertContainsArgs(t, cmd, "--effort", "high")
+
+	// When Effort is unset, no --effort flag should be emitted.
+	cmd = BuildCommand("/usr/local/bin/claude", &shared.Options{}, false)
+	assertNotContainsArg(t, cmd, "--effort")
+}
+
 // TestCLIDiscoveryLocations tests CLI discovery path generation
 func TestCLIDiscoveryLocations(t *testing.T) {
 	locations := getCommonCLILocations()

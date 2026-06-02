@@ -57,6 +57,9 @@ type SdkPluginConfig = shared.SdkPluginConfig
 // OutputFormat specifies the format for structured output.
 type OutputFormat = shared.OutputFormat
 
+// EffortLevel controls how many tokens Claude spends per response.
+type EffortLevel = shared.EffortLevel
+
 // CanUseToolCallback is invoked when CLI requests permission to use a tool.
 // The callback receives tool name, input parameters, and permission context.
 // Return PermissionResultAllow to permit, PermissionResultDeny to deny.
@@ -102,6 +105,11 @@ const (
 	SettingSourceProject            = shared.SettingSourceProject
 	SettingSourceLocal              = shared.SettingSourceLocal
 	SdkPluginTypeLocal              = shared.SdkPluginTypeLocal
+	EffortLow                       = shared.EffortLow
+	EffortMedium                    = shared.EffortMedium
+	EffortHigh                      = shared.EffortHigh
+	EffortXHigh                     = shared.EffortXHigh
+	EffortMax                       = shared.EffortMax
 )
 
 // Permission update type constants
@@ -178,6 +186,16 @@ func WithModel(model string) Option {
 func WithFallbackModel(model string) Option {
 	return func(o *Options) {
 		o.FallbackModel = &model
+	}
+}
+
+// WithEffort sets the effort level (--effort), controlling how many tokens
+// Claude spends per response. Known levels are EffortLow..EffortMax, but any
+// value is passed through to the CLI to tolerate future levels.
+func WithEffort(effort EffortLevel) Option {
+	return func(o *Options) {
+		s := string(effort)
+		o.Effort = &s
 	}
 }
 

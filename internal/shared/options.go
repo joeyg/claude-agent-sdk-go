@@ -133,6 +133,23 @@ const (
 	AgentModelInherit AgentModel = "inherit"
 )
 
+// EffortLevel controls how many tokens Claude spends per response, trading off
+// thoroughness against token efficiency. Maps to the CLI's --effort flag.
+type EffortLevel string
+
+const (
+	// EffortLow minimizes token usage.
+	EffortLow EffortLevel = "low"
+	// EffortMedium balances token usage and thoroughness.
+	EffortMedium EffortLevel = "medium"
+	// EffortHigh favors thoroughness over token efficiency.
+	EffortHigh EffortLevel = "high"
+	// EffortXHigh requests the highest effort (model-dependent).
+	EffortXHigh EffortLevel = "xhigh"
+	// EffortMax requests maximum effort (model-dependent, session-only).
+	EffortMax EffortLevel = "max"
+)
+
 // AgentDefinition defines a programmatic subagent.
 type AgentDefinition struct {
 	// Description is a brief description of the agent's purpose.
@@ -166,6 +183,7 @@ type Options struct {
 	AppendSystemPrompt *string `json:"append_system_prompt,omitempty"`
 	Model              *string `json:"model,omitempty"`
 	FallbackModel      *string `json:"fallback_model,omitempty"`
+	Effort             *string `json:"effort,omitempty"`
 	MaxThinkingTokens  int     `json:"max_thinking_tokens,omitempty"`
 
 	// Budget & Billing

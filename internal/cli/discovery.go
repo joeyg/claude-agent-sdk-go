@@ -215,6 +215,9 @@ func addModelAndPromptFlags(cmd []string, options *shared.Options) []string {
 	if options.FallbackModel != nil {
 		cmd = append(cmd, "--fallback-model", *options.FallbackModel)
 	}
+	if options.Effort != nil {
+		cmd = append(cmd, "--effort", *options.Effort)
+	}
 	if options.MaxBudgetUSD != nil {
 		cmd = append(cmd, "--max-budget-usd", fmt.Sprintf("%.2f", *options.MaxBudgetUSD))
 	}
