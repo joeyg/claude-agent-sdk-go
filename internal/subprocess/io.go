@@ -2,6 +2,7 @@ package subprocess
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -136,7 +137,7 @@ func (t *Transport) routeInitError(msg shared.Message) {
 	if !ok || t.connected || !resultMsg.IsError || t.protocol == nil {
 		return
 	}
-	t.protocol.HandleControlInitErr(fmt.Errorf("%s", formatInitError(resultMsg)))
+	t.protocol.HandleControlInitErr(errors.New(formatInitError(resultMsg)))
 }
 
 // formatInitError builds a meaningful error string from a ResultMessage that
